@@ -5,6 +5,7 @@ import Auth from "./components/auth/auth";
 import Layout from "./components/layout/layout";
 import Notification from "./components/notification/notification";
 import { uiActions } from "./store/ui-slice";
+import { fetchData, sendCartData } from "./store/cart-actions";
 
 let isFirstRender = true;
 
@@ -19,41 +20,20 @@ function App() {
   console.log(isLoggedIn)
 
   useEffect(() => {
+    dispatch(fetchData())
+  }, [dispatch])
+
+  useEffect(() => {
     if (isFirstRender) {
       isFirstRender = false
       return;
     }
-    const sendRequest = async () => {
 
-      // send state as sending request
-      dispatch(uiActions.showNotification({
-        open: true,
-        message: "Sending Request",
-        type: 'warning'
-      }))
-
-      const res = await fetch('https://shoppingcart-299b3-default-rtdb.firebaseio.com/cartItems.json', {
-        method: "PUT",
-        body: JSON.stringify(cart)
-      })
-      const data = await res.json();
-      // send state as request is successfull
-      dispatch(uiActions.showNotification({
-        open: true,
-        message: "sent request to database successfully",
-        type: 'success'
-      }))
+    if (cart.changed) {
+      dispatch(sendCartData(cart));
     }
-    sendRequest().catch(err => {
-      // send state as request is successfull
-      dispatch(uiActions.showNotification({
-        open: true,
-        message: "sending request failed",
-        type: 'error'
-      }))
-    })
 
-  }, [cart])
+  }, [cart, dispatch])
 
 
   return (
